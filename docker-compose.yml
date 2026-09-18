@@ -1,38 +1,38 @@
 services:
 
-  postgres:
-    image: postgres:16
-    container_name: blog-postgres
+  mysql:
+    image: mysql:8.0
+    container_name: blog-mysql
     restart: unless-stopped
     environment:
-      POSTGRES_DB: blog_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: blog_db
     ports:
-      - "5432:5432"
+      - "3307:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpass"]
       interval: 10s
       timeout: 5s
       retries: 10
+      start_period: 30s
 
   app:
     build: .
     container_name: blog-app
     restart: unless-stopped
     depends_on:
-      postgres:
+      mysql:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/blog_db
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/blog_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: rootpass
       JWT_SECRET: bXktc3VwZXItc2VjcmV0LWp3dC1zaWduaW5nLWtleS10aGF0LWlzLWxvbmctZW5vdWdoLWZvci1oczI1Ni1hbGdvcml0aG0tMTIzNDU2Nzg5MA==
       JWT_EXPIRATION: 86400000
     ports:
       - "8082:8082"
 
 volumes:
-  postgres_data:
+  mysql_data:
