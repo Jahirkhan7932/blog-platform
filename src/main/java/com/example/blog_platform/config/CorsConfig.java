@@ -15,14 +15,8 @@ public class CorsConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // Allow these origins (frontend URLs)
-        config.setAllowedOrigins(List.of(
-                "http://localhost:5173",              // Vite dev server
-                "https://blog-platform-frontend.vercel.app"  // will update after deploy
-        ));
-
-        // Also allow any Vercel preview deployment URLs
         config.setAllowedOriginPatterns(List.of(
+                "http://localhost:5173",
                 "https://*.vercel.app"
         ));
 
